@@ -1,8 +1,3 @@
-<!-- ===============================
-     login.html  (versión actualizada)
-     OrganizerPro – Proyecto proorganizer230
-     Incluye “¿Olvidaste la contraseña?”
-================================== -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -10,38 +5,114 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login – OrganizerPro</title>
 
-  <!-- Firebase SDK (compat) -->
+  <!-- Firebase SDK (modo compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
-  <!-- ========== LÍNEA AGREGADA: Configuración Firebase ========== -->
-  <script src="firebase-config.js"></script>
+  <!-- ========== CONFIGURACIÓN FIREBASE (CORREGIDO) ========== -->
+  <script src="/organizer-pro/firebase.js"></script>
 
   <style>
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Segoe UI',Tahoma,Helvetica,Arial,sans-serif;
-         background:linear-gradient(135deg,#667eea,#764ba2);
-         min-height:100vh;display:flex;justify-content:center;align-items:center;padding:20px}
-    .login{background:#fff;padding:40px;border-radius:15px;
-           box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:420px;width:100%}
-    .logo{font-size:48px;text-align:center;margin-bottom:10px}
-    h2{text-align:center;margin-bottom:5px;color:#333}
-    p.subtitle{text-align:center;color:#666;margin-bottom:25px;font-size:14px}
-    .input{margin-bottom:18px}
-    input{width:100%;padding:14px;border:2px solid #e0e0e0;border-radius:8px;font-size:15px}
-    input:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,.3)}
-    button{width:100%;padding:14px;border:none;border-radius:8px;
-           background:linear-gradient(135deg,#667eea,#764ba2);
-           color:#fff;font-weight:600;font-size:16px;cursor:pointer;transition:.25s}
-    button:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.2)}
-    .secondary{background:#6c757d;margin-top:12px}
-    .secondary:hover{background:#5a6268}
-    .msg{display:none;padding:12px;border-radius:8px;text-align:center;margin-bottom:15px;font-size:14px}
-    .msg.error{background:#fee;color:#c33;border:1px solid #fcc}
-    .msg.success{background:#d4edda;color:#155724;border:1px solid #c3e6cb}
-    .toggle{margin-top:18px;text-align:center}
-    .toggle a{color:#667eea;text-decoration:none;font-weight:600}
+    * { margin: 0; padding: 0; box-sizing: border-box }
+    body {
+      font-family: 'Segoe UI', Tahoma, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .login {
+      background: #fff;
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      max-width: 420px;
+      width: 100%;
+    }
+    .logo {
+      font-size: 48px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 5px;
+      color: #333;
+    }
+    p.subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+    .input {
+      margin-bottom: 18px;
+    }
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.25s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+    }
+    .secondary {
+      background: #6c757d;
+      margin-top: 12px;
+    }
+    .secondary:hover {
+      background: #5a6268;
+    }
+    .msg {
+      display: none;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    .msg.error {
+      background: #fee;
+      color: #c33;
+      border: 1px solid #fcc;
+    }
+    .msg.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+    .toggle {
+      margin-top: 18px;
+      text-align: center;
+    }
+    .toggle a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -74,15 +145,15 @@
     <form id="regForm" style="display:none">
       <div class="input">
         <label>👤 Nombre completo</label>
-        <input type="text" id="regName" required/>
+        <input type="text" id="regName" required />
       </div>
       <div class="input">
         <label>📧 Email</label>
-        <input type="email" id="regEmail" required/>
+        <input type="email" id="regEmail" required />
       </div>
       <div class="input">
-        <label>🔑 Contraseña (min.6)</label>
-        <input type="password" id="regPass" required minlength="6"/>
+        <label>🔑 Contraseña (mín. 6)</label>
+        <input type="password" id="regPass" required minlength="6" />
       </div>
       <button type="submit">📝 Crear Cuenta</button>
       <button type="button" class="secondary" onclick="showLogin()">← Volver al Login</button>
@@ -94,85 +165,99 @@
   </div>
 
   <script>
-    // Shortcuts
+    // Shortcut
     const el = id => document.getElementById(id);
-    const showMsg = (el,msg) => { el.textContent=msg; el.style.display='block'; };
+
+    // Mostrar mensaje
+    const showMsg = (el, msg) => {
+      el.textContent = msg;
+      el.style.display = 'block';
+    };
 
     // Toggle forms
-    function showReg(){
-      el('loginForm').style.display='none';
-      el('regForm').style.display='block';
-      el('subtitle').textContent='Crear nueva cuenta';
-      el('error').style.display='none';
-      el('ok').style.display='none';
+    function showReg() {
+      el('loginForm').style.display = 'none';
+      el('regForm').style.display = 'block';
+      el('subtitle').textContent = 'Crear nueva cuenta';
+      el('error').style.display = 'none';
+      el('ok').style.display = 'none';
     }
-    function showLogin(){
-      el('regForm').style.display='none';
-      el('loginForm').style.display='block';
-      el('subtitle').textContent='Inicia sesión en tu cuenta';
-      el('error').style.display='none';
-      el('ok').style.display='none';
+
+    function showLogin() {
+      el('regForm').style.display = 'none';
+      el('loginForm').style.display = 'block';
+      el('subtitle').textContent = 'Inicia sesión en tu cuenta';
+      el('error').style.display = 'none';
+      el('ok').style.display = 'none';
     }
 
     // LOGIN
-    el('loginForm').addEventListener('submit', async e=>{
+    el('loginForm').addEventListener('submit', async e => {
       e.preventDefault();
-      el('error').style.display='none';
+      el('error').style.display = 'none';
       try {
-        const u = await auth.signInWithEmailAndPassword(
+        const user = await auth.signInWithEmailAndPassword(
           el('loginEmail').value.trim(),
           el('loginPass').value
         );
-        // Redirect
-        window.location='index.html';
-      } catch(err) {
+        console.log('✅ Login exitoso:', user.user.email);
+        window.location.href = 'index.html';
+      } catch (err) {
         showMsg(el('error'), err.message);
       }
     });
 
     // REGISTER
-    el('regForm').addEventListener('submit', async e=>{
+    el('regForm').addEventListener('submit', async e => {
       e.preventDefault();
-      el('error').style.display='none';
+      el('error').style.display = 'none';
       try {
         const userCred = await auth.createUserWithEmailAndPassword(
           el('regEmail').value.trim(),
           el('regPass').value
         );
-        // Save profile
+
+        // Guardar perfil en Firestore
         await db.collection('users').doc(userCred.user.uid).set({
           name: el('regName').value.trim(),
           email: el('regEmail').value.trim(),
-          role:'user',
-          createdAt:firebase.firestore.FieldValue.serverTimestamp(),
-          active:true
+          role: 'user',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          active: true
         });
-        showMsg(el('ok'),'Cuenta creada ✔️ Redirigiendo…');
-        setTimeout(()=>window.location='index.html',1000);
-      } catch(err) {
+
+        showMsg(el('ok'), 'Cuenta creada ✔️ Redirigiendo…');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1000);
+      } catch (err) {
         showMsg(el('error'), err.message);
       }
     });
 
     // RESET PASSWORD
-    async function resetPass(){
-      el('error').style.display='none';
-      const mail = el('loginEmail').value.trim();
-      if(!mail){
-        showMsg(el('error'),'Ingresa tu email arriba');
+    async function resetPass() {
+      el('error').style.display = 'none';
+      const email = el('loginEmail').value.trim();
+      if (!email) {
+        showMsg(el('error'), 'Ingresa tu email primero');
         return;
       }
+
       try {
-        await auth.sendPasswordResetEmail(mail);
-        showMsg(el('ok'),'Correo de restablecimiento enviado ✔️');
-      } catch(err) {
+        await auth.sendPasswordResetEmail(email);
+        showMsg(el('ok'), 'Correo de restablecimiento enviado ✔️');
+      } catch (err) {
         showMsg(el('error'), err.message);
       }
     }
 
-    // Redirect if already logged in
-    auth.onAuthStateChanged(u=>{
-      if(u) window.location='index.html';
+    // Redirigir si ya estás logueado
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        console.log('✅ Ya autenticado, redirigiendo a index.html');
+        window.location.href = 'index.html';
+      }
     });
   </script>
 </body>

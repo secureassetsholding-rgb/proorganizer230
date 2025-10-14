@@ -1,48 +1,296 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin - OrganizerPro</title>
 
+  <!-- Firebase SDK (modo compat) -->
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-config.js"></script>
-  <style>/* tus estilos… */</style>
+
+  <!-- ========== CONFIGURACIÓN FIREBASE (CORREGIDO) ========== -->
+  <script src="/organizer-pro/firebase.js"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      padding: 30px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 25px;
+      border-bottom: 2px solid #e0e0e0;
+      padding-bottom: 10px;
+    }
+
+    .header h1 {
+      color: #333;
+      font-size: 28px;
+    }
+
+    .logout {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .logout:hover {
+      background: #c82333;
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 20px;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 5px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat {
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      font-size: 16px;
+      color: #333;
+    }
+
+    .stat strong {
+      font-size: 1.4em;
+      color: #667eea;
+    }
+
+    .users-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .user-item {
+      background: #f8f9fa;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .user-item .name {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .user-item .role {
+      font-size: 14px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    .user-item.admin {
+      background: #e8f5e9;
+      border-color: #a5d6a7;
+    }
+
+    .user-item.super-admin {
+      background: #f3e5f5;
+      border-color: #ce93d8;
+    }
+
+    .user-item.viewer {
+      background: #fff8e1;
+      border-color: #ffeb3b;
+    }
+
+    .loading {
+      text-align: center;
+      color: #666;
+      font-style: italic;
+    }
+
+    .error {
+      color: #dc3545;
+      font-weight: 600;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <button onclick="auth.signOut().then(()=>location='login.html')">🚪 Salir</button>
-  <h1>Panel Admin</h1>
-  <div id="stats"></div>
-  <h2>Usuarios</h2>
-  <div id="users"></div>
+  <div class="container">
+    <div class="header">
+      <h1>🔐 Panel Admin</h1>
+      <button class="logout" onclick="cerrarSesion()">🚪 Salir</button>
+    </div>
+
+    <div id="loading" class="loading">Cargando datos...</div>
+    <div id="error" class="error" style="display: none;"></div>
+
+    <div id="content" style="display: none;">
+      <!-- Estadísticas -->
+      <div class="section">
+        <h2>📊 Estadísticas</h2>
+        <div class="stats" id="stats"></div>
+      </div>
+
+      <!-- Usuarios -->
+      <div class="section">
+        <h2>👥 Usuarios</h2>
+        <div class="users-list" id="users"></div>
+      </div>
+    </div>
+  </div>
 
   <script>
-    auth.onAuthStateChanged(async u=>{
-      if(!u) return location='login.html';
-      // solo admins
-      const profile=await db.collection('users').doc(u.uid).get();
-      if(!['admin','super_admin'].includes(profile.data().role)) return location='index.html';
+    // Shortcut
+    const el = id => document.getElementById(id);
 
-      // stats
-      const st = document.getElementById('stats');
-      const usersSnap = await db.collection('users').get();
-      const eventsSnap= await db.collection('events').get();
-      st.innerHTML = `
-        <p>Total usuarios: ${usersSnap.size}</p>
-        <p>Total eventos: ${eventsSnap.size}</p>
-      `;
+    // Cerrar sesión
+    function cerrarSesion() {
+      if (confirm('¿Seguro que deseas cerrar sesión?')) {
+        logActivity('Cierre de sesión desde panel admin');
+        auth.signOut().then(() => {
+          window.location.href = 'login.html';
+        }).catch(err => {
+          console.error('Error al cerrar sesión:', err);
+          alert('Error al cerrar sesión');
+        });
+      }
+    }
 
-      // listar usuarios
-      const udiv=document.getElementById('users');
-      usersSnap.forEach(d=>{
-        const x=d.data();
-        const div=document.createElement('div');
-        div.innerHTML=`${x.name} – ${x.email} – ${x.role}`;
-        udiv.appendChild(div);
-      });
+    // Proteger página: solo admins y super_admin
+    auth.onAuthStateChanged(async user => {
+      if (!user) {
+        console.log('❌ No autenticado, redirigiendo a login...');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const userDoc = await db.collection('users').doc(user.uid).get();
+        if (!userDoc.exists) {
+          console.log('❌ Usuario no encontrado en base de datos');
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const userData = userDoc.data();
+        const allowedRoles = ['admin', 'super_admin'];
+
+        if (!allowedRoles.includes(userData.role)) {
+          console.log('❌ Rol no permitido:', userData.role);
+          window.location.href = 'index.html';
+          return;
+        }
+
+        console.log('✅ Acceso concedido al panel admin:', userData.name);
+
+        // Ocultar carga, mostrar contenido
+        el('loading').style.display = 'none';
+        el('content').style.display = 'block';
+
+        // Cargar datos
+        await cargarDatos();
+
+      } catch (error) {
+        console.error('Error al verificar acceso:', error);
+        el('error').textContent = 'Error de conexión. Intenta nuevamente.';
+        el('error').style.display = 'block';
+      }
     });
+
+    // Cargar estadísticas y usuarios
+    async function cargarDatos() {
+      try {
+        // Estadísticas
+        const usersSnap = await db.collection('users').get();
+        const eventsSnap = await db.collection('events').get();
+
+        const statsDiv = el('stats');
+        statsDiv.innerHTML = `
+          <div class="stat">
+            <strong>${usersSnap.size}</strong><br>
+            <small>Usuarios registrados</small>
+          </div>
+          <div class="stat">
+            <strong>${eventsSnap.size}</strong><br>
+            <small>Eventos totales</small>
+          </div>
+        `;
+
+        // Listar usuarios
+        const usersDiv = el('users');
+        usersDiv.innerHTML = '';
+
+        const roles = {
+          'super_admin': { color: '#ce93d8', label: 'Super Administrador' },
+          'admin': { color: '#a5d6a7', label: 'Administrador' },
+          'user': { color: '#667eea', label: 'Usuario' },
+          'viewer': { color: '#ffeb3b', label: 'Visor' }
+        };
+
+        usersSnap.forEach(doc => {
+          const data = doc.data();
+          const div = document.createElement('div');
+          div.className = `user-item ${data.role}`;
+          div.innerHTML = `
+            <span class="name">${data.name || 'Sin nombre'}</span>
+            <span class="email">${data.email}</span>
+            <span class="role" style="background: ${roles[data.role]?.color || '#ccc'}; color: #fff;">
+              ${roles[data.role]?.label || data.role}
+            </span>
+          `;
+          usersDiv.appendChild(div);
+        });
+
+      } catch (error) {
+        console.error('Error al cargar datos:', error);
+        el('error').textContent = 'No se pudieron cargar los datos.';
+        el('error').style.display = 'block';
+      }
+    }
   </script>
 </body>
 </html>

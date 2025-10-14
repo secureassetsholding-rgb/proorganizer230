@@ -8,7 +8,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyAcr56qpwswCKNSQV-otQYy2xD-ADbCGyc",
   authDomain: "proorganizer230.firebaseapp.com",
   projectId: "proorganizer230",
-  storageBucket: "proorganizer230.firebasestorage.app",
+  storageBucket: "proorganizer230.appspot.com", // ✅ CORREGIDO: fue .firebasestorage.app
   messagingSenderId: "265916509815",
   appId: "1:265916509815:web:f9a9756fa4e42747a92072"
 };
@@ -356,6 +356,9 @@ async function updateLastActivity() {
 
 // Actualizar actividad cada 5 minutos
 setInterval(updateLastActivity, 300000);
+
+// Iniciar inicialización
+initializeCompanyConfig();
 
 console.log('🔥 Firebase configurado correctamente - Proyecto: proorganizer230');
 console.log('📊 Sistema: OrganizerPro v2.0');
