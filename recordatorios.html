@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Recordatorios - OrganizerPro</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <!-- Configuración -->
+  <script src="firebase-config.js"></script>
+
+  <style>
+    /* tus estilos existentes… */
+  </style>
+</head>
+<body>
+  <!-- header -->
+  <button onclick="window.location='index.html'">🏠 Dashboard</button>
+  <button onclick="abrirModal()">➕ Nuevo Recordatorio</button>
+
+  <div id="lista"></div>
+
+  <div id="modal" style="display:none;">
+    <!-- tu modal de creación/edición -->
+    <form id="form">
+      <input id="titulo" placeholder="Título" required/>
+      <input id="fecha" type="datetime-local" required/>
+      <textarea id="desc" placeholder="Descripción"></textarea>
+      <button type="submit">Guardar</button>
+      <button type="button" onclick="cerrarModal()">Cancelar</button>
+    </form>
+  </div>
+
+  <script>
+    let editId = null;
+    auth.onAuthStateChanged(user => {
+      if (!user) return window.location='login.html';
+      load();
+      Notification.requestPermission(); // pedir permiso
+    });
+
+    async function load() {
+      const u = auth.currentUser;
+      const snap = await db.collection('reminders')
+        .where('userId','==',u.uid)
+        .orderBy('fecha','asc')
+        .get();
+
+      const lista = document.getElementById('lista');
+      if (snap.empty) {
+        lista.innerHTML = '<p>No hay recordatorios</p>';
+        return;
+      }
+
+      lista.innerHTML = '';
+      snap.forEach(d => {
+        const r = d.data();
+        const fecha = new Date(r.fecha).toLocaleString('es-ES');
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <strong>${r.titulo}</strong> <br>
+          ${fecha}<br>
+          ${r.descripcion||''}<br>
+          <button onclick="editar('${d.id}')">✏️</button>
+          <button onclick="borrar('${d.id}')">🗑️</button>
+        `;
+        lista.appendChild(div);
+      });
+    }
+
+    function abrirModal(id=null) {
+      editId = id;
+      document.getElementById('form').reset();
+      if (id) {
+        db.collection('reminders').doc(id).get().then(doc => {
+          const r = doc.data();
+          document.getElementById('titulo').value = r.titulo;
+          document.getElementById('fecha').value = r.fecha;
+          document.getElementById('desc').value = r.descripcion;
+        });
+      }
+      document.getElementById('modal').style.display = 'block';
+    }
+
+    function cerrarModal() {
+      document.getElementById('modal').style.display = 'none';
+    }
+
+    document.getElementById('form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const u = auth.currentUser;
+      const data = {
+        titulo: document.getElementById('titulo').value,
+        fecha: document.getElementById('fecha').value,
+        descripcion: document.getElementById('desc').value,
+        userId: u.uid,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      if (editId) {
+        await db.collection('reminders').doc(editId).update(data);
+      } else {
+        await db.collection('reminders').add(data);
+        // programar notificación local
+        const delay = new Date(data.fecha) - new Date();
+        if (delay>0 && Notification.permission==='granted'){
+          setTimeout(()=>new Notification('Recordatorio', { body: data.titulo }), delay);
+        }
+      }
+      cerrarModal();
+      load();
+    });
+
+    async function borrar(id) {
+      if(!confirm('Eliminar?'))return;
+      await db.collection('reminders').doc(id).delete();
+      load();
+    }
+
+    function editar(id) { abrirModal(id); }
+  </script>
+</body>
+</html>

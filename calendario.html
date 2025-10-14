@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario - OrganizerPro</title>
+
+    <!-- LÍNEA AÑADIDA -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <!--  ─── Todo tu CSS original intacto ─── -->
+    <style>/* … se mantiene exactamente igual … */</style>
+</head>
+<body>
+    <!-- ─── Todo tu HTML original intacto ─── -->
+    <div class="container"> … </div>
+    <div class="modal" id="eventModal"> … </div>
+
+    <!-- Configuración global de Firebase -->
+    <script src="firebase-config.js"></script>
+
+    <!--  ─── Todo tu JS original intacto ─── -->
+    <script>
+        /* …  todas las funciones que ya tenías  … */
+    </script>
+
+    <!-- LÍNEA AÑADIDA: registro del Service-Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js');
+      }
+    </script>
+</body>
+</html>

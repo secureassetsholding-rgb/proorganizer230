@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Dashboard - OrganizerPro</title>
+
+  <!-- 1) Incluye primero los SDK de Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+  <!-- 2) Luego tu configuración -->
+  <script src="firebase-config.js"></script>
+
+  <!-- Tus estilos y Font Awesome -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    /* [TUS ESTILOS EXISTENTES] */
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <!-- … tu menú … -->
+    <a href="#" class="menu-item" onclick="auth.signOut().then(()=>window.location='login.html')">
+      <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+    </a>
+  </div>
+
+  <!-- Main content -->
+  <div class="main-content">
+    <div class="topbar">
+      <h1><i class="fas fa-chart-line"></i> Dashboard</h1>
+      <div class="user-info">
+        <strong id="userName">Usuario</strong>
+        <div id="currentDate"></div>
+      </div>
+    </div>
+
+    <!-- Tus widgets -->
+    <div class="widgets-grid">
+      <div class="widget">
+        <h3>Eventos Hoy</h3>
+        <p id="eventosHoy">0</p>
+      </div>
+      <div class="widget">
+        <h3>Contactos</h3>
+        <p id="totalContactos">0</p>
+      </div>
+      <div class="widget">
+        <h3>Notas</h3>
+        <p id="totalNotas">0</p>
+      </div>
+      <div class="widget">
+        <h3>Tareas Pendientes</h3>
+        <p id="tareasPendientes">0</p>
+      </div>
+      <div class="widget">
+        <h3>Recordatorios Activos</h3>
+        <p id="recordatoriosActivos">0</p>
+      </div>
+      <div class="widget">
+        <h3>Nuevo Recordatorio en</h3>
+        <p id="proximoRecordatorio">--</p>
+      </div>
+      <div class="widget">
+        <h3>Balance del Mes</h3>
+        <p id="balanceMes">$0.00</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 3) Protege la página y carga estadísticas
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location = 'login.html';
+        return;
+      }
+      // Mostrar nombre y fecha
+      db.collection('users').doc(user.uid).get().then(doc => {
+        document.getElementById('userName').textContent = doc.data().name;
+      });
+      document.getElementById('currentDate').textContent =
+        new Date().toLocaleDateString('es-ES', {
+          weekday:'long', year:'numeric', month:'long', day:'numeric'
+        });
+
+      cargarEstadisticas();
+      setInterval(cargarEstadisticas, 30000);
+    });
+
+    // 4) Función para cargar estadísticas desde Firestore
+    async function cargarEstadisticas() {
+      const u = auth.currentUser;
+      const hoy = new Date().toISOString().split('T')[0];
+      const ahora = new Date();
+
+      // Eventos de hoy
+      const eSnap = await db.collection('events')
+        .where('userId','==',u.uid)
+        .where('date','==',hoy)
+        .get();
+      document.getElementById('eventosHoy').textContent = eSnap.size;
+
+      // Contactos totales
+      const cSnap = await db.collection('contacts')
+        .where('userId','==',u.uid)
+        .get();
+      document.getElementById('totalContactos').textContent = cSnap.size;
+
+      // Notas
+      const nSnap = await db.collection('notes')
+        .where('userId','==',u.uid)
+        .get();
+      document.getElementById('totalNotas').textContent = nSnap.size;
+
+      // Tareas pendientes
+      const tSnap = await db.collection('tasks')
+        .where('userId','==',u.uid)
+        .where('completada','==',false)
+        .get();
+      document.getElementById('tareasPendientes').textContent = tSnap.size;
+
+      // Recordatorios activos
+      const rSnap = await db.collection('reminders')
+        .where('userId','==',u.uid)
+        .where('fecha','>=',ahora.toISOString())
+        .get();
+      document.getElementById('recordatoriosActivos').textContent = rSnap.size;
+
+      // Próximo recordatorio
+      if (rSnap.size > 0) {
+        const arr = [];
+        rSnap.forEach(d => arr.push(d.data()));
+        arr.sort((a,b)=>new Date(a.fecha) - new Date(b.fecha));
+        const diff = Math.floor((new Date(arr[0].fecha) - ahora)/60000);
+        document.getElementById('proximoRecordatorio').textContent =
+          diff>60 ? `${Math.floor(diff/60)}h` : `${diff}min`;
+      }
+
+      // Balance del mes
+      const mes = ahora.getMonth(), año = ahora.getFullYear();
+      let bal = 0;
+      const expSnap = await db.collection('expenses')
+        .where('userId','==',u.uid)
+        .get();
+      expSnap.forEach(d => {
+        const ex = d.data(), f = new Date(ex.fecha);
+        if (f.getMonth()===mes && f.getFullYear()===año) {
+          bal += (ex.tipo==='ingreso'? ex.monto : -ex.monto);
+        }
+      });
+      document.getElementById('balanceMes').textContent = `$${bal.toFixed(2)}`;
+    }
+  </script>
+</body>
+</html>

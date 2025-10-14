@@ -1,0 +1,123 @@
+## ✅ Revisión de tu estructura de carpetas
+
+La captura muestra el directorio `proorganizer2030` con:
+
+```
+admin.html
+calendario.html
+contactos.html
+firebase-config.js
+gastos.html
+index.html
+login.html
+manifest.json
+notas.html
+recordatorios.html
+service-worker.js
+tareas.html
+icon-72x72.png
+icon-96x96.png
+icon-128x128.png
+icon-144x144.png
+icon-152x152.png
+icon-192x192.png
+icon-384x384.png
+icon-512x512.png
+```
+
+¡Está perfecto!  Todo en la **raíz** y los 8 iconos presentes.
+
+---
+
+## 1.  Manifest.json vs- nombres de iconos
+
+Tu `manifest.json` actualizado debe referenciar **solo los archivos que existen**:
+
+```json
+{
+  "name": "OrganizerPro – Tu Asistente Personal",
+  "short_name": "OrganizerPro",
+  "description": "Sistema de gestión personal con calendario, contactos, tareas y más",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "lang": "es-ES",
+  "dir": "ltr",
+  "icons": [
+    { "src": "./icon-72x72.png",  "sizes": "72x72",   "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icon-96x96.png",  "sizes": "96x96",   "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icon-128x128.png","sizes": "128x128", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icon-144x144.png","sizes": "144x144", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icon-152x152.png","sizes": "152x152", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icon-192x192.png","sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icon-384x384.png","sizes": "384x384", "type": "image/png", "purpose": "any maskable" },
+    { "src": "./icon-512x512.png","sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
+```
+
+• Asegúrate de que **no exista** ninguna entrada con `via.placeholder.com`.
+
+---
+
+## 2.  Referencia del manifest en cada página
+
+En cada HTML principal (al menos `index.html`, `login.html`) debe aparecer:
+
+```html
+<link rel="manifest" href="manifest.json">
+```
+
+Ponlo dentro de `<head>` antes de los scripts.
+
+---
+
+## 3.  Service Worker en la raíz
+
+`service-worker.js` ya está ahí.  
+Cada HTML debe registrar el SW, normalmente en `<script>` al final de `body`:
+
+```javascript
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js');
+  });
+}
+```
+
+Revisa que al menos `index.html` lo tenga; el resto hereda la caché.
+
+---
+
+## 4.  Sube todo a GitHub
+
+Desde la carpeta `proorganizer2030`:
+
+```bash
+git init                # si aún no está
+git remote add origin https://github.com/secureassetsholding-rgb/organizer-pro.git
+git add .
+git commit -m "Estructura completa con manifest e iconos correctos"
+git branch -M main
+git push -u origin main
+```
+
+---
+
+## 5.  Comprobación final
+
+1. Abre tu sitio:  
+   `https://secureassetsholding-rgb.github.io/organizer-pro/`
+
+2. DevTools → Application → Manifest:  
+   • Todos los iconos deben marcarse **Valid**  
+   • No más errores de `via.placeholder.com`.
+
+3. Recarga dura (Ctrl+Shift+R), luego prueba “Instalar” la PWA.
+
+---
+
+¿Algo más que ajustar? Si el manifest ahora se valida y el login funciona, tu PWA está lista. 🚀
