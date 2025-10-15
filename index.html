@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - proorganicer230</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -89,94 +90,12 @@
             font-size: 14px;
             line-height: 1.5;
         }
+        .loading {
+            text-align: center;
+            padding: 100px;
+            color: white;
+            font-size: 18px;
+        }
         @media (max-width: 768px) {
             .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <div class="header-left">
-                <h1>🧠 proorganicer230</h1>
-                <p id="usuario-nombre">Cargando...</p>
-            </div>
-            <button class="btn" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
-        </div>
-
-        <div class="grid">
-            <div class="card" onclick="window.location.href='calendario.html'">
-                <div class="card-icon">📅</div>
-                <h3>Calendario</h3>
-                <p>Gestiona tus eventos y citas importantes</p>
-            </div>
-            
-            <div class="card" onclick="window.location.href='tareas.html'">
-                <div class="card-icon">✅</div>
-                <h3>Tareas</h3>
-                <p>Lista de pendientes y proyectos</p>
-            </div>
-            
-            <div class="card" onclick="window.location.href='notas.html'">
-                <div class="card-icon">📝</div>
-                <h3>Notas</h3>
-                <p>Tus apuntes e ideas organizadas</p>
-            </div>
-            
-            <div class="card" onclick="window.location.href='recordatorios.html'">
-                <div class="card-icon">⏰</div>
-                <h3>Recordatorios</h3>
-                <p>Alertas y avisos importantes</p>
-            </div>
-            
-            <div class="card" onclick="window.location.href='gastos.html'">
-                <div class="card-icon">💰</div>
-                <h3>Gastos e Ingresos</h3>
-                <p>Control financiero personal</p>
-            </div>
-            
-            <div class="card" onclick="window.location.href='contactos.html'">
-                <div class="card-icon">👥</div>
-                <h3>Contactos</h3>
-                <p>Agenda de contactos profesionales</p>
-            </div>
-        </div>
-    </div>
-
-    <script src="firebase-config.js"></script>
-    <script>
-        auth.onAuthStateChanged(async user => {
-            if (!user) {
-                console.log('❌ No autenticado, redirigiendo...');
-                window.location.href = 'login.html';
-                return;
-            }
-
-            console.log('✅ Usuario autenticado:', user.email);
-
-            try {
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (userDoc.exists) {
-                    const userData = userDoc.data();
-                    document.getElementById('usuario-nombre').textContent = '👋 Hola, ' + userData.name;
-                } else {
-                    document.getElementById('usuario-nombre').textContent = '👋 Hola, ' + user.email;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('usuario-nombre').textContent = '👋 Hola, ' + user.email;
-            }
-        });
-
-        function cerrarSesion() {
-            if (confirm('¿Estás seguro de cerrar sesión?')) {
-                auth.signOut().then(() => {
-                    window.location.href = 'login.html';
-                });
-            }
-        }
-    </script>
-</body>
-</html>
+                
