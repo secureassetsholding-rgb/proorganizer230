@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - proorganicer230</title>
+    <title>Dashboard - ProOrganizer 2030</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -98,4 +98,110 @@
         }
         @media (max-width: 768px) {
             .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading" class="loading">🔄 Cargando...</div>
+        
+        <div id="dashboard" style="display: none;">
+            <div class="header">
+                <div class="header-left">
+                    <h1>🧠 ProOrganizer 2030</h1>
+                    <p id="usuario-nombre">Cargando...</p>
+                </div>
+                <button class="btn" onclick="cerrarSesion()">🚪 Cerrar Sesión</button>
+            </div>
+
+            <div class="grid">
+                <div class="card" onclick="window.location.href='calendario.html'">
+                    <div class="card-icon">📅</div>
+                    <h3>Calendario</h3>
+                    <p>Gestiona tus eventos y citas importantes</p>
+                </div>
                 
+                <div class="card" onclick="window.location.href='tareas.html'">
+                    <div class="card-icon">✅</div>
+                    <h3>Tareas</h3>
+                    <p>Lista de pendientes y proyectos</p>
+                </div>
+                
+                <div class="card" onclick="window.location.href='notas.html'">
+                    <div class="card-icon">📝</div>
+                    <h3>Notas</h3>
+                    <p>Tus apuntes e ideas organizadas</p>
+                </div>
+                
+                <div class="card" onclick="window.location.href='recordatorios.html'">
+                    <div class="card-icon">⏰</div>
+                    <h3>Recordatorios</h3>
+                    <p>Alertas y avisos importantes</p>
+                </div>
+                
+                <div class="card" onclick="window.location.href='gastos.html'">
+                    <div class="card-icon">💰</div>
+                    <h3>Gastos e Ingresos</h3>
+                    <p>Control financiero personal</p>
+                </div>
+                
+                <div class="card" onclick="window.location.href='contactos.html'">
+                    <div class="card-icon">👥</div>
+                    <h3>Contactos</h3>
+                    <p>Agenda de contactos profesionales</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script>
+        // Proteger página - verificar autenticación
+        auth.onAuthStateChanged(async user => {
+            if (!user) {
+                console.log('❌ No autenticado, redirigiendo a login...');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            console.log('✅ Usuario autenticado:', user.email);
+
+            try {
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                if (userDoc.exists) {
+                    const userData = userDoc.data();
+                    document.getElementById('usuario-nombre').textContent = '👋 Hola, ' + userData.name;
+                } else {
+                    document.getElementById('usuario-nombre').textContent = '👋 Hola, ' + user.email;
+                }
+                
+                // Mostrar dashboard
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error al cargar usuario:', error);
+                document.getElementById('usuario-nombre').textContent = '👋 Hola, ' + user.email;
+                
+                // Mostrar dashboard aunque haya error al cargar usuario
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+            }
+        });
+
+        function cerrarSesion() {
+            if (confirm('¿Estás seguro de cerrar sesión?')) {
+                auth.signOut().then(() => {
+                    console.log('✅ Sesión cerrada');
+                    window.location.href = 'login.html';
+                }).catch(error => {
+                    console.error('Error al cerrar sesión:', error);
+                    alert('Error al cerrar sesión');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
