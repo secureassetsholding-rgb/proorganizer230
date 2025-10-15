@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - proorganicer230</title>
+    <title>Login - proorganizer230</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -110,6 +110,19 @@
             cursor: not-allowed;
             transform: none;
         }
+        .link-recuperar {
+            text-align: center;
+            margin-top: 15px;
+        }
+        .link-recuperar a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .link-recuperar a:hover {
+            text-decoration: underline;
+        }
         .error {
             background: #fee2e2;
             color: #dc2626;
@@ -128,11 +141,19 @@
             display: none;
             font-size: 14px;
         }
+        .info {
+            background: #e0f2fe;
+            color: #0284c7;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🧠 proorganicer230</h1>
+        <h1>🧠 proorganizer230</h1>
         <p class="subtitle">Sistema de Gestión Empresarial</p>
         
         <div class="tabs">
@@ -143,6 +164,7 @@
         <div id="mensaje-error" class="error"></div>
         <div id="mensaje-success" class="success"></div>
 
+        <!-- Formulario Login -->
         <div id="form-login" class="form active">
             <form onsubmit="iniciarSesion(event)">
                 <div class="form-group">
@@ -155,8 +177,12 @@
                 </div>
                 <button type="submit" class="btn" id="btn-login">Entrar</button>
             </form>
+            <div class="link-recuperar">
+                <a href="#" onclick="mostrarRecuperacion(); return false;">¿Olvidaste tu contraseña?</a>
+            </div>
         </div>
 
+        <!-- Formulario Registro -->
         <div id="form-registro" class="form">
             <form onsubmit="crearCuenta(event)">
                 <div class="form-group">
@@ -174,6 +200,23 @@
                 <button type="submit" class="btn" id="btn-registro">Crear Cuenta</button>
             </form>
         </div>
+
+        <!-- Formulario Recuperar Contraseña -->
+        <div id="form-recuperar" class="form">
+            <div class="info">
+                📧 Ingresa tu email y te enviaremos un link para restablecer tu contraseña.
+            </div>
+            <form onsubmit="recuperarContrasena(event)">
+                <div class="form-group">
+                    <label>📧 Email</label>
+                    <input type="email" id="recuperar-email" required placeholder="tu@email.com">
+                </div>
+                <button type="submit" class="btn" id="btn-recuperar">Enviar Email de Recuperación</button>
+            </form>
+            <div class="link-recuperar">
+                <a href="#" onclick="cambiarTab('login'); return false;">← Volver al login</a>
+            </div>
+        </div>
     </div>
 
     <script src="firebase-config.js"></script>
@@ -188,10 +231,20 @@
             if (tab === 'login') {
                 document.querySelector('.tab:first-child').classList.add('active');
                 document.getElementById('form-login').classList.add('active');
-            } else {
+            } else if (tab === 'registro') {
                 document.querySelector('.tab:last-child').classList.add('active');
                 document.getElementById('form-registro').classList.add('active');
             }
+        }
+
+        function mostrarRecuperacion() {
+            document.getElementById('mensaje-error').style.display = 'none';
+            document.getElementById('mensaje-success').style.display = 'none';
+            
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+            
+            document.getElementById('form-recuperar').classList.add('active');
         }
 
         function mostrarError(mensaje) {
@@ -268,13 +321,45 @@
                 btn.textContent = 'Crear Cuenta';
                 
                 if (error.code === 'auth/email-already-in-use') {
-                    mostrarError('❌ Este email ya está registrado');
+                    mostrarError('❌ Este email ya está registrado. ¿Olvidaste tu contraseña?');
                 } else if (error.code === 'auth/weak-password') {
                     mostrarError('❌ La contraseña debe tener al menos 6 caracteres');
                 } else if (error.code === 'auth/invalid-email') {
                     mostrarError('❌ Email inválido');
                 } else {
                     mostrarError('❌ Error al crear la cuenta. Intenta de nuevo.');
+                }
+            }
+        }
+
+        async function recuperarContrasena(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-recuperar');
+            btn.disabled = true;
+            btn.textContent = 'Enviando...';
+            
+            const email = document.getElementById('recuperar-email').value;
+
+            try {
+                await auth.sendPasswordResetEmail(email);
+                mostrarSuccess('✅ ¡Email enviado! Revisa tu bandeja de entrada (y spam).');
+                btn.disabled = false;
+                btn.textContent = 'Enviar Email de Recuperación';
+                
+                setTimeout(() => {
+                    cambiarTab('login');
+                }, 3000);
+            } catch (error) {
+                console.error('Error:', error);
+                btn.disabled = false;
+                btn.textContent = 'Enviar Email de Recuperación';
+                
+                if (error.code === 'auth/user-not-found') {
+                    mostrarError('❌ No existe una cuenta con ese email');
+                } else if (error.code === 'auth/invalid-email') {
+                    mostrarError('❌ Email inválido');
+                } else {
+                    mostrarError('❌ Error al enviar email. Intenta de nuevo.');
                 }
             }
         }
