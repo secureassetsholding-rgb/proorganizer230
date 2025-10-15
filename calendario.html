@@ -3,37 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendario - OrganizerPro</title>
-
-    <!-- LÍNEA AÑADIDA -->
-    <link rel="manifest" href="manifest.json">
-
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
-    <!--  ─── Todo tu CSS original intacto ─── -->
-    <style>/* … se mantiene exactamente igual … */</style>
+    <title>Calendario - proorganicer230</title>
 </head>
-<body>
-    <!-- ─── Todo tu HTML original intacto ─── -->
-    <div class="container"> … </div>
-    <div class="modal" id="eventModal"> … </div>
-
-    <!-- Configuración global de Firebase -->
-    <script src="firebase-config.js"></script>
-
-    <!--  ─── Todo tu JS original intacto ─── -->
-    <script>
-        /* …  todas las funciones que ya tenías  … */
-    </script>
-
-    <!-- LÍNEA AÑADIDA: registro del Service-Worker -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./service-worker.js');
-      }
-    </script>
+<body style="font-family:Arial,sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:20px;margin:0">
+<div style="max-width:1200px;margin:0 auto;background:white;padding:30px;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.1)">
+<h1 style="color:#667eea;margin-bottom:20px">📅 Calendario</h1>
+<a href="index.html" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:12px 24px;border-radius:8px;text-decoration:none;display:inline-block;font-weight:600">🏠 Volver al Dashboard</a>
+<h2 style="text-align:center;margin:30px 0 20px 0;color:#333;font-size:24px">Diciembre 2024</h2>
+<table style="width:100%;border-collapse:collapse;margin-top:20px">
+<thead>
+<tr style="background:linear-gradient(135deg,#667eea,#764ba2);color:white">
+<th style="padding:15px;font-weight:600">Dom</th>
+<th style="padding:15px;font-weight:600">Lun</th>
+<th style="padding:15px;font-weight:600">Mar</th>
+<th style="padding:15px;font-weight:600">Mié</th>
+<th style="padding:15px;font-weight:600">Jue</th>
+<th style="padding:15px;font-weight:600">Vie</th>
+<th style="padding:15px;font-weight:600">Sáb</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">1</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">2</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">3</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">4</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">5</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">6</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">7</td>
+</tr>
+<tr>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">8</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer;background:#667eea;color:white;font-weight:bold">9</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">10</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">11</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">12</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">13</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">14</td>
+</tr>
+<tr>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">15</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">16</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">17</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">18</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">19</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">20</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">21</td>
+</tr>
+<tr>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">22</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">23</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">24</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">25</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">26</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">27</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">28</td>
+</tr>
+<tr>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">29</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">30</td>
+<td style="padding:15px;border:1px solid #e0e0e0;text-align:center;cursor:pointer">31</td>
+<td style="padding:15px;border:1px solid #e0e0e0"></td>
+<td style="padding:15px;border:1px solid #e0e0e0"></td>
+<td style="padding:15px;border:1px solid #e0e0e0"></td>
+<td style="padding:15px;border:1px solid #e0e0e0"></td>
+</tr>
+</tbody>
+</table>
+</div>
 </body>
 </html>
