@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendario - proorganizer230</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
+    
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -48,10 +55,11 @@
         .nav-buttons {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .btn {
-            padding: 10px 20px;
+            padding: 12px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
@@ -111,6 +119,9 @@
             cursor: pointer;
             font-size: 18px;
             transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .month-nav button:hover {
@@ -154,6 +165,7 @@
             transition: all 0.3s;
             background: white;
             position: relative;
+            overflow: hidden;
         }
 
         .day:hover {
@@ -185,7 +197,7 @@
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
         }
@@ -206,6 +218,7 @@
         .event:hover {
             transform: scale(1.02);
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
         }
 
         .event.trabajo { background: #667eea; }
@@ -226,6 +239,7 @@
             z-index: 1000;
             justify-content: center;
             align-items: center;
+            padding: 20px;
         }
 
         .modal.active {
@@ -236,8 +250,10 @@
             background: white;
             border-radius: 15px;
             padding: 30px;
-            width: 90%;
+            width: 100%;
             max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             animation: slideIn 0.3s;
         }
@@ -272,6 +288,11 @@
             cursor: pointer;
             color: #999;
             transition: color 0.3s;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .close-btn:hover {
@@ -298,6 +319,7 @@
             border-radius: 8px;
             font-size: 14px;
             transition: border-color 0.3s;
+            font-family: inherit;
         }
 
         .form-group input:focus,
@@ -368,6 +390,14 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .month-year {
+                font-size: 18px;
+            }
+
             .weekday {
                 font-size: 12px;
                 padding: 10px 2px;
@@ -387,12 +417,13 @@
                 padding: 2px 4px;
             }
 
-            .header h1 {
-                font-size: 20px;
+            .nav-buttons {
+                width: 100%;
+                justify-content: center;
             }
 
-            .month-year {
-                font-size: 18px;
+            .modal-content {
+                padding: 20px;
             }
         }
     </style>
@@ -403,8 +434,8 @@
             <h1>📅 Calendario Premium</h1>
             <div class="nav-buttons">
                 <button class="btn btn-primary" onclick="openModal()">➕ Nuevo Evento</button>
-                <button class="btn btn-secondary" onclick="goToDashboard()">🏠 Dashboard</button>
-                <button class="btn btn-secondary" onclick="logout()">🚪 Salir</button>
+                <button class="btn btn-secondary" onclick="window.location.href='index.html'">🏠 Dashboard</button>
+                <button class="btn btn-secondary" onclick="cerrarSesion()">🚪 Salir</button>
             </div>
         </div>
 
@@ -438,20 +469,24 @@
                 <h2 id="modalTitle">Nuevo Evento</h2>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <form id="eventForm">
+            <form id="eventForm" onsubmit="saveEvent(event)">
                 <input type="hidden" id="eventId">
+                
                 <div class="form-group">
                     <label for="eventTitle">Título del Evento *</label>
                     <input type="text" id="eventTitle" required placeholder="Ej: Reunión con cliente">
                 </div>
+
                 <div class="form-group">
                     <label for="eventDate">Fecha *</label>
                     <input type="date" id="eventDate" required>
                 </div>
+
                 <div class="form-group">
                     <label for="eventTime">Hora</label>
                     <input type="time" id="eventTime">
                 </div>
+
                 <div class="form-group">
                     <label for="eventCategory">Categoría</label>
                     <select id="eventCategory">
@@ -462,12 +497,16 @@
                         <option value="recordatorio">🔔 Recordatorio</option>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label for="eventDescription">Descripción</label>
                     <textarea id="eventDescription" placeholder="Detalles adicionales..."></textarea>
                 </div>
+
                 <div class="modal-buttons">
-                    <button type="button" class="btn-delete" id="deleteBtn" onclick="deleteEvent()" style="display:none;">🗑️ Eliminar</button>
+                    <button type="button" class="btn-delete" id="deleteBtn" onclick="deleteEvent()" style="display:none;">
+                        🗑️ Eliminar
+                    </button>
                     <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
                     <button type="submit" class="btn-save">💾 Guardar</button>
                 </div>
@@ -475,58 +514,36 @@
         </div>
     </div>
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
+    <script src="firebase-config.js"></script>
     <script>
-        // ⚠️ OBTÉN ESTA CONFIGURACIÓN AQUÍ:
-        // https://console.firebase.google.com/project/organizerpremium2026/settings/general
-        // Scroll abajo > "Tus apps" > Selecciona tu app web > "Configuración"
-        
-        const firebaseConfig = {
-            apiKey: "OBTENER_DE_FIREBASE_CONSOLE",
-            authDomain: "organizerpremium2026.firebaseapp.com",
-            projectId: "organizerpremium2026",
-            storageBucket: "organizerpremium2026.appspot.com",
-            messagingSenderId: "OBTENER_DE_FIREBASE_CONSOLE",
-            appId: "OBTENER_DE_FIREBASE_CONSOLE"
-        };
-
-        // Inicializar Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
         // Variables globales
         let currentDate = new Date();
         let events = [];
         let selectedDate = null;
         let editingEventId = null;
 
-        // Verificar autenticación
-        auth.onAuthStateChanged(user => {
-            if (!user) {
-                window.location.href = 'login.html';
-            } else {
-                loadEvents();
-            }
+        // Proteger página y cargar eventos
+        protectPage().then(() => {
+            loadEvents();
         });
 
-        // Cargar eventos desde Firebase
+        // Cargar eventos en tiempo real
         function loadEvents() {
             const user = auth.currentUser;
             if (!user) return;
 
-            db.collection('events')
-                .where('userId', '==', user.uid)
+            // Sincronización en tiempo real - todos los admins ven los mismos eventos
+            db.collection('eventos')
+                .orderBy('date', 'asc')
                 .onSnapshot(snapshot => {
                     events = [];
                     snapshot.forEach(doc => {
                         events.push({ id: doc.id, ...doc.data() });
                     });
                     renderCalendar();
+                }, error => {
+                    console.error('Error al cargar eventos:', error);
+                    mostrarNotificacion('Error al cargar eventos', 'error');
                 });
         }
 
@@ -535,12 +552,12 @@
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
 
-            // Actualizar mes/año
+            // Actualizar título
             const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                                'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
             document.getElementById('monthYear').textContent = `${monthNames[month]} ${year}`;
 
-            // Primer día del mes
+            // Calcular días
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
             const prevLastDay = new Date(year, month, 0);
@@ -554,41 +571,53 @@
 
             // Días del mes anterior
             for (let i = firstDayIndex; i > 0; i--) {
-                const day = createDayElement(prevLastDayDate - i + 1, true, month - 1);
+                const day = createDayElement(prevLastDayDate - i + 1, true, month - 1, year);
                 daysContainer.appendChild(day);
             }
 
             // Días del mes actual
             for (let i = 1; i <= lastDayDate; i++) {
-                const day = createDayElement(i, false, month);
+                const day = createDayElement(i, false, month, year);
                 daysContainer.appendChild(day);
             }
 
             // Días del siguiente mes
             const totalCells = daysContainer.children.length;
-            const nextDays = 42 - totalCells;
+            const nextDays = totalCells < 42 ? 42 - totalCells : 0;
             for (let i = 1; i <= nextDays; i++) {
-                const day = createDayElement(i, true, month + 1);
+                const day = createDayElement(i, true, month + 1, year);
                 daysContainer.appendChild(day);
             }
         }
 
         // Crear elemento día
-        function createDayElement(dayNum, otherMonth, month) {
+        function createDayElement(dayNum, otherMonth, month, year) {
             const dayDiv = document.createElement('div');
             dayDiv.className = 'day';
             if (otherMonth) dayDiv.classList.add('other-month');
 
-            const year = currentDate.getFullYear();
-            const actualMonth = month;
-            const dateStr = `${year}-${String(actualMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+            let actualYear = year;
+            let actualMonth = month;
+            
+            if (month < 0) {
+                actualMonth = 11;
+                actualYear--;
+            } else if (month > 11) {
+                actualMonth = 0;
+                actualYear++;
+            }
+
+            const dateStr = `${actualYear}-${String(actualMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
 
             // Marcar día actual
             const today = new Date();
-            if (year === today.getFullYear() && actualMonth === today.getMonth() && dayNum === today.getDate()) {
+            if (actualYear === today.getFullYear() && 
+                actualMonth === today.getMonth() && 
+                dayNum === today.getDate()) {
                 dayDiv.classList.add('today');
             }
 
+            // Número del día
             const dayNumber = document.createElement('div');
             dayNumber.className = 'day-number';
             dayNumber.textContent = dayNum;
@@ -607,7 +636,7 @@
                 dayDiv.appendChild(eventDiv);
             });
 
-            // Click en día
+            // Click en día para crear evento
             dayDiv.onclick = () => {
                 selectedDate = dateStr;
                 openModal();
@@ -655,7 +684,7 @@
         }
 
         // Guardar evento
-        document.getElementById('eventForm').addEventListener('submit', async (e) => {
+        async function saveEvent(e) {
             e.preventDefault();
 
             const eventData = {
@@ -665,34 +694,44 @@
                 category: document.getElementById('eventCategory').value,
                 description: document.getElementById('eventDescription').value,
                 userId: auth.currentUser.uid,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                userEmail: auth.currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
                 if (editingEventId) {
-                    await db.collection('events').doc(editingEventId).update(eventData);
+                    await db.collection('eventos').doc(editingEventId).update(eventData);
+                    mostrarNotificacion('Evento actualizado correctamente', 'success');
+                    await logActivity('Evento actualizado', { titulo: eventData.title });
                 } else {
-                    await db.collection('events').add(eventData);
+                    await db.collection('eventos').add(eventData);
+                    mostrarNotificacion('Evento creado correctamente', 'success');
+                    await logActivity('Evento creado', { titulo: eventData.title, fecha: eventData.date });
                 }
                 closeModal();
             } catch (error) {
-                alert('Error al guardar: ' + error.message);
-            }
-        });
-
-        // Eliminar evento
-        async function deleteEvent() {
-            if (!confirm('¿Eliminar este evento?')) return;
-
-            try {
-                await db.collection('events').doc(editingEventId).delete();
-                closeModal();
-            } catch (error) {
-                alert('Error al eliminar: ' + error.message);
+                console.error('Error:', error);
+                mostrarNotificacion('Error al guardar evento', 'error');
             }
         }
 
-        // Navegación
+        // Eliminar evento
+        async function deleteEvent() {
+            if (!confirm('¿Seguro que deseas eliminar este evento?')) return;
+
+            try {
+                await db.collection('eventos').doc(editingEventId).delete();
+                mostrarNotificacion('Evento eliminado correctamente', 'success');
+                await logActivity('Evento eliminado', { id: editingEventId });
+                closeModal();
+            } catch (error) {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al eliminar evento', 'error');
+            }
+        }
+
+        // Navegación de meses
         function previousMonth() {
             currentDate.setMonth(currentDate.getMonth() - 1);
             renderCalendar();
@@ -708,14 +747,13 @@
             renderCalendar();
         }
 
-        function goToDashboard() {
-            window.location.href = 'dashboard.html';
-        }
-
-        function logout() {
-            auth.signOut().then(() => {
+        // Cerrar sesión
+        async function cerrarSesion() {
+            if (confirm('¿Seguro que deseas cerrar sesión?')) {
+                await logActivity('Cierre de sesión desde calendario');
+                await auth.signOut();
                 window.location.href = 'login.html';
-            });
+            }
         }
 
         // Cerrar modal con ESC
@@ -723,8 +761,10 @@
             if (e.key === 'Escape') closeModal();
         });
 
-        // Inicializar
-        renderCalendar();
+        // Cerrar modal al hacer click fuera
+        document.getElementById('eventModal').addEventListener('click', (e) => {
+            if (e.target.id === 'eventModal') closeModal();
+        });
     </script>
 </body>
 </html>
