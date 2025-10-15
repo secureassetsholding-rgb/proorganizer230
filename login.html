@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - proorganicer230</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -104,6 +105,11 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
         .error {
             background: #fee2e2;
             color: #dc2626;
@@ -137,7 +143,6 @@
         <div id="mensaje-error" class="error"></div>
         <div id="mensaje-success" class="success"></div>
 
-        <!-- Formulario Login -->
         <div id="form-login" class="form active">
             <form onsubmit="iniciarSesion(event)">
                 <div class="form-group">
@@ -148,11 +153,10 @@
                     <label>🔑 Contraseña</label>
                     <input type="password" id="login-password" required placeholder="••••••••">
                 </div>
-                <button type="submit" class="btn">Entrar</button>
+                <button type="submit" class="btn" id="btn-login">Entrar</button>
             </form>
         </div>
 
-        <!-- Formulario Registro -->
         <div id="form-registro" class="form">
             <form onsubmit="crearCuenta(event)">
                 <div class="form-group">
@@ -167,7 +171,7 @@
                     <label>🔑 Contraseña</label>
                     <input type="password" id="registro-password" required minlength="6" placeholder="Mínimo 6 caracteres">
                 </div>
-                <button type="submit" class="btn">Crear Cuenta</button>
+                <button type="submit" class="btn" id="btn-registro">Crear Cuenta</button>
             </form>
         </div>
     </div>
@@ -207,6 +211,10 @@
 
         async function iniciarSesion(e) {
             e.preventDefault();
+            const btn = document.getElementById('btn-login');
+            btn.disabled = true;
+            btn.textContent = 'Entrando...';
+            
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
 
@@ -216,18 +224,27 @@
                 setTimeout(() => window.location.href = 'index.html', 1000);
             } catch (error) {
                 console.error('Error:', error);
+                btn.disabled = false;
+                btn.textContent = 'Entrar';
+                
                 if (error.code === 'auth/user-not-found') {
                     mostrarError('❌ Usuario no encontrado');
                 } else if (error.code === 'auth/wrong-password') {
                     mostrarError('❌ Contraseña incorrecta');
+                } else if (error.code === 'auth/invalid-email') {
+                    mostrarError('❌ Email inválido');
                 } else {
-                    mostrarError('❌ Email o contraseña incorrectos');
+                    mostrarError('❌ Error al iniciar sesión. Verifica tus credenciales.');
                 }
             }
         }
 
         async function crearCuenta(e) {
             e.preventDefault();
+            const btn = document.getElementById('btn-registro');
+            btn.disabled = true;
+            btn.textContent = 'Creando cuenta...';
+            
             const nombre = document.getElementById('registro-nombre').value;
             const email = document.getElementById('registro-email').value;
             const password = document.getElementById('registro-password').value;
@@ -239,7 +256,7 @@
                 await db.collection('users').doc(user.uid).set({
                     name: nombre,
                     email: email,
-                    role: 'user',
+                    role: 'admin',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
@@ -247,18 +264,25 @@
                 setTimeout(() => window.location.href = 'index.html', 1500);
             } catch (error) {
                 console.error('Error:', error);
+                btn.disabled = false;
+                btn.textContent = 'Crear Cuenta';
+                
                 if (error.code === 'auth/email-already-in-use') {
                     mostrarError('❌ Este email ya está registrado');
                 } else if (error.code === 'auth/weak-password') {
                     mostrarError('❌ La contraseña debe tener al menos 6 caracteres');
+                } else if (error.code === 'auth/invalid-email') {
+                    mostrarError('❌ Email inválido');
                 } else {
-                    mostrarError('❌ Error al crear la cuenta');
+                    mostrarError('❌ Error al crear la cuenta. Intenta de nuevo.');
                 }
             }
         }
 
+        // Verificar si ya está logueado
         auth.onAuthStateChanged(user => {
             if (user) {
+                console.log('✅ Usuario ya autenticado, redirigiendo...');
                 window.location.href = 'index.html';
             }
         });
