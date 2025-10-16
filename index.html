@@ -4,388 +4,76 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>proorganizer230 | Panel Principal</title>
+  <!-- Favicon -->
   <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="manifest" href="site.webmanifest">
+  <meta name="theme-color" content="#1e40af">
   <!-- Iconos premium (Font Awesome) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <!-- Firebase -->
+  <!-- Estilos PROFESIONALES -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Firebase CDN -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
-  <!-- Estilos PROFESIONALES -->
-  <style>
-    /* === SISTEMA DE DISEÑO === */
-    :root {
-      --primary: #165DFF;       /* Azul premium */
-      --secondary: #36CFC9;     /* Verde-azulado suave */
-      --accent-purple: #722ED1;  /* Morado elegante */
-      --accent-orange: #F5A623;  /* Naranja suave */
-      --neutral-light: #F7F9FC; /* Fondo claro */
-      --neutral-gray: #E5E9F2;  /* Gris suave */
-      --neutral-dark: #1D2129;  /* Texto oscuro */
-      --neutral-text: #4E5969;  /* Texto secundario */
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
-      --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
-      --transition: all 0.3s ease;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-    }
-
-    body {
-      background-color: var(--neutral-light);
-      color: var(--neutral-dark);
-      min-height: 100vh;
-      display: flex;
-    }
-
-    /* === BARRA LATERAL (NAVEGACIÓN) === */
-    .sidebar {
-      width: 260px;
-      background-color: white;
-      box-shadow: var(--shadow-sm);
-      padding: 2rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 3rem;
-      position: fixed;
-      height: 100vh;
-      transition: width 0.3s ease;
-    }
-
-    .sidebar.collapsed {
-      width: 80px;
-    }
-
-    .sidebar-logo {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    .sidebar-logo i {
-      font-size: 1.5rem;
-    }
-
-    .sidebar-nav {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      border-radius: 10px;
-      color: var(--neutral-text);
-      text-decoration: none;
-      transition: var(--transition);
-    }
-
-    .nav-link:hover, .nav-link.active {
-      background-color: var(--primary);
-      color: white;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .nav-text {
-      transition: opacity 0.2s ease;
-    }
-
-    .sidebar.collapsed .nav-text,
-    .sidebar.collapsed .sidebar-logo-text {
-      opacity: 0;
-      width: 0;
-      overflow: hidden;
-    }
-
-    /* === BOTÓN TOGGLE SIDEBAR (MÓVIL) === */
-    .sidebar-toggle {
-      position: fixed;
-      top: 1rem;
-      left: 1rem;
-      background-color: var(--primary);
-      color: white;
-      border: none;
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      cursor: pointer;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-    }
-
-    /* === CONTENIDO PRINCIPAL === */
-    .main-content {
-      margin-left: 260px;
-      width: 100%;
-      padding: 2rem;
-      transition: margin-left 0.3s ease;
-    }
-
-    .sidebar.collapsed ~ .main-content {
-      margin-left: 80px;
-    }
-
-    /* === HEADER === */
-    .header {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    .user-profile {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .user-avatar {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      background-color: var(--primary);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-    }
-
-    .user-name {
-      font-weight: 500;
-    }
-
-    .logout-btn {
-      background-color: transparent;
-      border: none;
-      color: var(--neutral-text);
-      cursor: pointer;
-      font-size: 1.1rem;
-      transition: var(--transition);
-    }
-
-    .logout-btn:hover {
-      color: var(--primary);
-    }
-
-    /* === BIENVENIDA Y ESTADÍSTICAS === */
-    .welcome-section {
-      background: linear-gradient(135deg, var(--primary), #0E42CC);
-      color: white;
-      padding: 2rem;
-      border-radius: 16px;
-      margin-bottom: 2rem;
-      box-shadow: var(--shadow-md);
-    }
-
-    .welcome-title {
-      font-size: 1.8rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-    }
-
-    .welcome-subtitle {
-      opacity: 0.9;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2.5rem;
-    }
-
-    .stat-card {
-      background-color: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      transition: var(--transition);
-    }
-
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .stat-icon {
-      width: 60px;
-      height: 60px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1.5rem;
-    }
-
-    .stat-purple { background-color: var(--accent-purple); }
-    .stat-orange { background-color: var(--accent-orange); }
-    .stat-teal { background-color: var(--secondary); }
-
-    .stat-info {
-      flex: 1;
-    }
-
-    .stat-value {
-      font-size: 1.8rem;
-      font-weight: 700;
-      display: block;
-    }
-
-    .stat-label {
-      color: var(--neutral-text);
-      font-size: 0.9rem;
-    }
-
-    /* === MÓDULOS === */
-    .modules-title {
-      font-size: 1.4rem;
-      font-weight: 600;
-      margin-bottom: 1.5rem;
-      color: var(--neutral-dark);
-    }
-
-    .modules-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .module-card {
-      background-color: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: var(--shadow-sm);
-      text-decoration: none;
-      color: var(--neutral-dark);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-      text-align: center;
-      transition: var(--transition);
-      border-top: 3px solid var(--primary);
-    }
-
-    .module-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .module-icon {
-      font-size: 2rem;
-      color: var(--primary);
-    }
-
-    .module-name {
-      font-weight: 600;
-    }
-
-    .module-desc {
-      font-size: 0.9rem;
-      color: var(--neutral-text);
-    }
-
-    /* === RESPONSIVO (MÓVILES) === */
-    @media (max-width: 768px) {
-      .sidebar {
-        left: -260px;
-        z-index: 99;
-      }
-
-      .sidebar.open {
-        left: 0;
-      }
-
-      .sidebar-toggle {
-        display: flex;
-      }
-
-      .main-content {
-        margin-left: 0;
-        padding: 1.5rem;
-      }
-
-      .sidebar.open ~ .main-content {
-        margin-left: 0;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
 </head>
 <body>
-  <!-- Botón toggle sidebar (móviles) -->
+  <!-- Botón toggle sidebar (solo móviles) -->
   <button class="sidebar-toggle" id="sidebarToggle">
     <i class="fa-solid fa-bars"></i>
   </button>
 
-  <!-- Barra lateral -->
+  <!-- Barra lateral de navegación -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <i class="fa-solid fa-calendar-check"></i>
-      <span class="sidebar-logo-text">proorganizer230</span>
+      <span>proorganizer230</span>
     </div>
 
     <nav class="sidebar-nav">
-      <a href="dashboard.html" class="nav-link active">
+      <a href="index.html" class="nav-link active">
         <i class="fa-solid fa-house"></i>
-        <span class="nav-text">Inicio</span>
+        <span>Inicio</span>
       </a>
       <a href="calendario.html" class="nav-link">
         <i class="fa-solid fa-calendar-days"></i>
-        <span class="nav-text">Calendario</span>
+        <span>Calendario</span>
       </a>
       <a href="tareas.html" class="nav-link">
         <i class="fa-solid fa-list-check"></i>
-        <span class="nav-text">Tareas</span>
+        <span>Tareas</span>
       </a>
       <a href="notas.html" class="nav-link">
         <i class="fa-solid fa-sticky-note"></i>
-        <span class="nav-text">Notas</span>
+        <span>Notas</span>
       </a>
       <a href="gastos.html" class="nav-link">
         <i class="fa-solid fa-wallet"></i>
-        <span class="nav-text">Gastos</span>
+        <span>Gastos</span>
       </a>
       <a href="recordatorios.html" class="nav-link">
         <i class="fa-solid fa-bell"></i>
-        <span class="nav-text">Recordatorios</span>
+        <span>Recordatorios</span>
       </a>
       <a href="contactos.html" class="nav-link">
         <i class="fa-solid fa-address-book"></i>
-        <span class="nav-text">Contactos</span>
+        <span>Contactos</span>
       </a>
       <a href="ai-chat.html" class="nav-link">
         <i class="fa-solid fa-robot"></i>
-        <span class="nav-text">Asistente IA</span>
+        <span>Asistente IA</span>
       </a>
     </nav>
   </aside>
 
-  <!-- Contenido principal -->
+  <!-- Contenido principal del dashboard -->
   <main class="main-content">
-    <!-- Header -->
-    <header class="header">
+    <header class="main-header">
+      <h1 class="header-title">Panel de Organización</h1>
       <div class="user-profile">
         <div class="user-avatar" id="userAvatar">U</div>
         <span class="user-name" id="userName">Cargando...</span>
@@ -395,16 +83,10 @@
       </div>
     </header>
 
-    <!-- Sección bienvenida -->
-    <section class="welcome-section">
-      <h1 class="welcome-title" id="welcomeTitle">¡Hola!</h1>
-      <p class="welcome-subtitle">Organiza tu día, maneja tus tareas y no te olvides de nada.</p>
-    </section>
-
-    <!-- Estadísticas rápidas -->
+    <!-- Estadísticas rápidas (cargadas desde Firebase) -->
     <section class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon stat-purple">
+        <div class="stat-icon stat-teal">
           <i class="fa-solid fa-list-check"></i>
         </div>
         <div class="stat-info">
@@ -414,7 +96,7 @@
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon stat-orange">
+        <div class="stat-icon stat-green">
           <i class="fa-solid fa-calendar"></i>
         </div>
         <div class="stat-info">
@@ -424,7 +106,7 @@
       </div>
 
       <div class="stat-card">
-        <div class="stat-icon stat-teal">
+        <div class="stat-icon stat-yellow">
           <i class="fa-solid fa-coins"></i>
         </div>
         <div class="stat-info">
@@ -434,10 +116,50 @@
       </div>
     </section>
 
-    <!-- Módulos adicionales -->
-    <section>
+    <!-- Módulos principales -->
+    <section class="modules-section">
       <h2 class="modules-title">Explora los módulos</h2>
       <div class="modules-grid">
+        <a href="calendario.html" class="module-card">
+          <div class="module-icon">
+            <i class="fa-solid fa-calendar-days"></i>
+          </div>
+          <h3 class="module-name">Calendario</h3>
+          <p class="module-desc">Eventos, fechas y recordatorios organizados</p>
+        </a>
+
+        <a href="tareas.html" class="module-card">
+          <div class="module-icon">
+            <i class="fa-solid fa-list-check"></i>
+          </div>
+          <h3 class="module-name">Tareas</h3>
+          <p class="module-desc">Prioriza y completa tus pendientes</p>
+        </a>
+
+        <a href="notas.html" class="module-card">
+          <div class="module-icon">
+            <i class="fa-solid fa-sticky-note"></i>
+          </div>
+          <h3 class="module-name">Notas</h3>
+          <p class="module-desc">Apuntes rápidos guardados en tu cuenta</p>
+        </a>
+
+        <a href="gastos.html" class="module-card">
+          <div class="module-icon">
+            <i class="fa-solid fa-wallet"></i>
+          </div>
+          <h3 class="module-name">Gastos</h3>
+          <p class="module-desc">Controla tus finanzas mensuales</p>
+        </a>
+
+        <a href="recordatorios.html" class="module-card">
+          <div class="module-icon">
+            <i class="fa-solid fa-bell"></i>
+          </div>
+          <h3 class="module-name">Recordatorios</h3>
+          <p class="module-desc">No olvides fechas importantes</p>
+        </a>
+
         <a href="ai-chat.html" class="module-card">
           <div class="module-icon">
             <i class="fa-solid fa-robot"></i>
@@ -445,67 +167,66 @@
           <h3 class="module-name">Asistente IA</h3>
           <p class="module-desc">Ayuda rápida con tu organización</p>
         </a>
-        <a href="recordatorios.html" class="module-card">
-          <div class="module-icon">
-            <i class="fa-solid fa-bell"></i>
-          </div>
-          <h3 class="module-name">Recordatorios</h3>
-          <p class="module-desc">Alertas personalizadas</p>
-        </a>
       </div>
     </section>
   </main>
 
   <script>
+    // Variables globales
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
     let currentUser;
-    const sidebar = document.getElementById("sidebar");
-    const sidebarToggle = document.getElementById("sidebarToggle");
 
-    // Toggle sidebar (móviles/desktop)
-    sidebarToggle.addEventListener("click", () => {
-      sidebar.classList.toggle("open");
+    // Toggle sidebar (móviles)
+    sidebarToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
     });
 
-    // Verificar usuario y cargar datos
+    // Cerrar sidebar al hacer clic en contenido (móviles)
+    document.querySelector('.main-content').addEventListener('click', () => {
+      if (window.innerWidth < 768 && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    // Verificar sesión de usuario
     auth.onAuthStateChanged(user => {
       if (!user) {
-        window.location.href = "login.html";
+        window.location.href = 'login.html';
       } else {
         currentUser = user;
-        // Actualizar nombre y avatar
-        const userName = user.displayName || user.email.split("@")[0];
-        document.getElementById("userName").textContent = userName;
-        document.getElementById("userAvatar").textContent = userName.charAt(0).toUpperCase();
-        document.getElementById("welcomeTitle").textContent = `¡Hola, ${userName}!`;
-
-        // Cargar estadísticas (dinámicas desde Firebase)
+        // Actualizar avatar y nombre
+        const userName = user.displayName || user.email.split('@')[0];
+        document.getElementById('userName').textContent = userName;
+        document.getElementById('userAvatar').textContent = userName.charAt(0).toUpperCase();
+        // Cargar estadísticas
         loadStats();
       }
     });
 
-    // Cargar estadísticas rápidas
+    // Cargar estadísticas desde Firebase
     function loadStats() {
       // Tareas pendientes
-      db.collection("users").doc(currentUser.uid).collection("tasks")
-        .where("completed", "==", false)
+      db.collection('users').doc(currentUser.uid).collection('tasks')
+        .where('completed', '==', false)
         .get()
         .then(snapshot => {
-          document.getElementById("pendingTasks").textContent = snapshot.size;
+          document.getElementById('pendingTasks').textContent = snapshot.size;
         });
 
       // Eventos de hoy
-      const today = new Date().toISOString().split("T")[0];
-      db.collection("users").doc(currentUser.uid).collection("calendar_events")
-        .where("date", "==", today)
+      const today = new Date().toISOString().split('T')[0];
+      db.collection('users').doc(currentUser.uid).collection('calendar_events')
+        .where('date', '==', today)
         .get()
         .then(snapshot => {
-          document.getElementById("todayEvents").textContent = snapshot.size;
+          document.getElementById('todayEvents').textContent = snapshot.size;
         });
 
       // Gastos este mes
       const thisMonth = new Date().getMonth() + 1;
       const thisYear = new Date().getFullYear();
-      db.collection("users").doc(currentUser.uid).collection("expenses")
+      db.collection('users').doc(currentUser.uid).collection('expenses')
         .get()
         .then(snapshot => {
           let total = 0;
@@ -515,13 +236,15 @@
               total += doc.data().amount;
             }
           });
-          document.getElementById("monthExpenses").textContent = `$${total.toFixed(2)}`;
+          document.getElementById('monthExpenses').textContent = `$${total.toFixed(2)}`;
         });
     }
 
     // Cerrar sesión
     function logout() {
-      auth.signOut().then(() => window.location.href = "login.html");
+      auth.signOut()
+        .then(() => window.location.href = 'login.html')
+        .catch(err => alert('Error al cerrar sesión: ' + err.message));
     }
   </script>
 </body>
