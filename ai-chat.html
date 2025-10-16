@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IA | proorganizer230</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    .ai-chat {
+      background: #f0f4f8;
+      font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .header {
+      background: #4a6fa5;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .message {
+      max-width: 80%;
+      padding: 0.8rem 1rem;
+      border-radius: 12px;
+      margin-bottom: 0.5rem;
+      word-wrap: break-word;
+    }
+    .user-message {
+      align-self: flex-end;
+      background: #4a6fa5;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .ai-message {
+      align-self: flex-start;
+      background: #e3e9f0;
+      color: #333;
+      border-bottom-left-radius: 4px;
+    }
+    .input-area {
+      display: flex;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: white;
+      border-top: 1px solid #ddd;
+    }
+    .input-area input {
+      flex: 1;
+      padding: 0.7rem;
+      border: 1px solid #ccc;
+      border-radius: 25px;
+      outline: none;
+    }
+    .input-area button {
+      background: #4a6fa5;
+      color: white;
+      border: none;
+      padding: 0.7rem 1.2rem;
+      border-radius: 25px;
+      cursor: pointer;
+    }
+    .input-area button:hover {
+      background: #3a5d8c;
+    }
+  </style>
+</head>
+<body class="ai-chat">
+  <header class="header">
+    <h1>🤖 Asistente Virtual</h1>
+    <p>¿En qué puedo ayudarte?</p>
+  </header>
+
+  <div class="chat-container" id="chatMessages">
+    <div class="message ai-message">
+      Hola 👋 Soy tu asistente personal. Puedo ayudarte con tareas, recordatorios, calendario o ideas.
+    </div>
+  </div>
+
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Escribe tu pregunta..." />
+    <button onclick="sendMessage()">Enviar</button>
+  </div>
+
+  <script>
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser;
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('chatMessages').innerHTML += `
+          <div class="message ai-message">
+            ¡Bienvenido, ${user.displayName || user.email.split('@')[0]}! ¿Qué necesitas?
+          </div>
+        `;
+        loadChatHistory();
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+
+    function sendMessage() {
+      const input = document.getElementById('userInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      // Mostrar mensaje del usuario
+      addMessage(text, 'user');
+
+      // Enviar al "IA"
+      setTimeout(() => {
+        const response = getAIResponse(text);
+        addMessage(response, 'ai');
+        saveToFirebase(text, response);
+      }, 800);
+
+      input.value = '';
+    }
+
+    function addMessage(text, sender) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = `message ai-message ${sender === 'user' ? 'user-message' : ''}`;
+      div.textContent = text;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function getAIResponse(message) {
+      message = message.toLowerCase();
+
+      if (message.includes('hola') || message.includes('buenos días')) {
+        return "¡Hola! ¿Cómo estás? ¿Te ayudo con algo hoy?";
+      } else if (message.includes('tarea') || message.includes('hacer')) {
+        return "Puedes agregar una tarea desde el módulo Tareas. ¿Quieres que te guíe?";
+      } else if (message.includes('recordatorio') || message.includes('acordarme')) {
+        return "¡Claro! Ve al módulo Recordatorios y agrega un evento con fecha y hora.";
+      } else if (message.includes('calendario') || message.includes('evento')) {
+        return "El calendario está disponible en la sección Calendario. Puedes crear eventos por categorías.";
+      } else if (message.includes('gastos') || message.includes('dinero')) {
+        return "En el módulo Gastos puedes registrar tus gastos diarios y ver tu total mensual.";
+      } else if (message.includes('contacto') || message.includes('teléfono')) {
+        return "Puedes añadir contactos en el módulo Contactos. Todos están guardados seguros.";
+      } else if (message.includes('ayuda') || message.includes('como uso')) {
+        return "Puedes usar cualquier módulo: Tareas, Notas, Calendario, etc. También puedes decirme 'agregar tarea mañana' y te lo registro.";
+      } else if (message.includes('gracias') || message.includes('thank you')) {
+        return "De nada 😊. Si necesitas algo más, estoy aquí.";
+      } else {
+        return "Entiendo... ¿Quieres que te ayude a organizar tu día? Puedo sugerirte tareas o recordatorios.";
+      }
+    }
+
+    function saveToFirebase(userMsg, aiMsg) {
+      db.collection("users").doc(currentUser.uid).collection("ai_chat")
+        .add({
+          user: userMsg,
+          ai: aiMsg,
+          timestamp: new Date()
+        });
+    }
+
+    function loadChatHistory() {
+      db.collection("users").doc(currentUser.uid).collection("ai_chat")
+        .orderBy("timestamp", "asc")
+        .onSnapshot(snapshot => {
+          snapshot.forEach(doc => {
+            const data = doc.data();
+            addMessage(data.user, 'user');
+            addMessage(data.ai, 'ai');
+          });
+        });
+    }
+
+    // Enter para enviar
+    document.getElementById('userInput').addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+</body>
+</html>

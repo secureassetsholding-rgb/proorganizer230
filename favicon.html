@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generar Favicon</title>
+  <style>
+    body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f4f8; font-family: Arial, sans-serif; }
+    .icon { width: 64px; height: 64px; background: #4a6fa5; border-radius: 10px; display: flex; justify-content: center; align-items: center; position: relative; }
+    .icon::before { content: "📅"; font-size: 32px; }
+    .icon::after { content: "✏️"; position: absolute; bottom: 2px; right: 2px; font-size: 16px; }
+    .info { margin-top: 20px; text-align: center; color: #555; }
+  </style>
+</head>
+<body>
+  <div class="icon"></div>
+  <div class="info">
+    <p>Este es tu nuevo favicon.</p>
+    <p>Guarda esta imagen como <strong>favicon.ico</strong></p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,28 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+header { background: #4a6fa5; color: white; padding: 1rem; text-align: center; }
+header h1 { margin-bottom: 0.5rem; }
+header button { background: #ff6b6b; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; float: right; margin-left: 10px; }
+.container { max-width: 1000px; margin: 2rem auto; padding: 1rem; }
+.add-task, .add-note, .add-reminder, .add-expense, .add-contact { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; }
+input, textarea, select, button { padding: 0.5rem; border: 1px solid #ccc; border-radius: 5px; }
+input[type="datetime-local"], select { width: 150px; }
+textarea { width: 100%; min-height: 80px; }
+button { background: #4a6fa5; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; }
+button:hover { background: #3a5d8c; }
+ul { list-style: none; }
+li { background: white; padding: 1rem; margin-bottom: 0.5rem; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+.priority-alta { color: red; font-weight: bold; }
+.priority-media { color: orange; }
+.priority-baja { color: green; }
+.note { background: #e8f5e8; border-left: 4px solid #4caf50; padding: 1rem; margin-bottom: 0.5rem; }
+.category-comida { color: #d35400; }
+.category-transporte { color: #2980b9; }
+.category-diversion { color: #8e44ad; }
+.category-salud { color: #27ae60; }
+.category-otros { color: #7f8c8d; }
+small { font-size: 0.8rem; opacity: 0.7; }
+@media (max-width: 600px) {
+  .add-task, .add-note, .add-reminder, .add-expense, .add-contact { flex-direction: column; }
+  input, button { width: 100%; }
+}

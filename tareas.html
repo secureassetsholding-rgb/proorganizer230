@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tareas | proorganizer230</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+  <header>
+    <h1>📋 Tareas</h1>
+    <p>Bienvenido, <span id="userName">Usuario</span></p>
+    <button onclick="logout()">Cerrar Sesión</button>
+  </header>
+
+  <main class="container">
+    <div class="add-task">
+      <input type="text" id="newTaskInput" placeholder="Nueva tarea..." />
+      <select id="taskPriority">
+        <option value="baja">Baja</option>
+        <option value="media">Media</option>
+        <option value="alta">Alta</option>
+      </select>
+      <button onclick="addTask()">Agregar</button>
+    </div>
+
+    <ul id="taskList"></ul>
+  </main>
+
+  <script>
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser;
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
+        loadTasks();
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+
+    function addTask() {
+      const input = document.getElementById('newTaskInput');
+      const priority = document.getElementById('taskPriority').value;
+      const text = input.value.trim();
+
+      if (!text) return alert("Escribe una tarea");
+
+      db.collection("users").doc(currentUser.uid).collection("tasks").add({
+        text,
+        priority,
+        createdAt: new Date(),
+        completed: false
+      }).then(() => {
+        input.value = '';
+        loadTasks();
+      });
+    }
+
+    function loadTasks() {
+      const list = document.getElementById('taskList');
+      list.innerHTML = '';
+
+      db.collection("users").doc(currentUser.uid).collection("tasks")
+        .orderBy("createdAt", "desc")
+        .onSnapshot(snapshot => {
+          snapshot.forEach(doc => {
+            const task = doc.data();
+            const li = document.createElement("li");
+            li.innerHTML = `
+              <span class="priority-${task.priority}">${task.text}</span>
+              <div>
+                <button onclick="toggleComplete('${doc.id}')">${task.completed ? '✔' : '☐'}</button>
+                <button onclick="deleteTask('${doc.id}')">🗑️</button>
+              </div>
+            `;
+            list.appendChild(li);
+          });
+        });
+    }
+
+    function toggleComplete(id) {
+      db.collection("users").doc(currentUser.uid).collection("tasks").doc(id)
+        .update({ completed: !document.querySelector(`#taskList li button[onclick*="${id}"]`).innerText.includes('✔') })
+        .then(() => loadTasks());
+    }
+
+    function deleteTask(id) {
+      db.collection("users").doc(currentUser.uid).collection("tasks").doc(id)
+        .delete().then(() => loadTasks());
+    }
+
+    function logout() {
+      auth.signOut().then(() => window.location.href = 'login.html');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Notas | proorganizer230</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+</head>
+<body>
+  <header>
+    <h1>📝 Notas</h1>
+    <p>Bienvenido, <span id="userName">Usuario</span></p>
+    <button onclick="logout()">Cerrar Sesión</button>
+  </header>
+
+  <main class="container">
+    <div class="add-note">
+      <textarea id="newNote" rows="4" placeholder="Escribe tu nota aquí..."></textarea>
+      <button onclick="addNote()">Guardar Nota</button>
+    </div>
+
+    <div id="notesContainer"></div>
+  </main>
+
+  <script>
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let currentUser;
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        currentUser = user;
+        document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
+        loadNotes();
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+
+    function addNote() {
+      const text = document.getElementById('newNote').value.trim();
+      if (!text) return alert("Escribe algo");
+
+      db.collection("users").doc(currentUser.uid).collection("notes").add({
+        text,
+        createdAt: new Date()
+      }).then(() => {
+        document.getElementById('newNote').value = '';
+        loadNotes();
+      });
+    }
+
+    function loadNotes() {
+      const container = document.getElementById('notesContainer');
+      container.innerHTML = '';
+
+      db.collection("users").doc(currentUser.uid).collection("notes")
+        .orderBy("createdAt", "desc")
+        .onSnapshot(snapshot => {
+          snapshot.forEach(doc => {
+            const note = doc.data();
+            const div = document.createElement("div");
+            div.className = "note";
+            div.innerHTML = `
+              <p>${note.text}</p>
+              <small>${formatDate(note.createdAt)}</small>
+              <button onclick="deleteNote('${doc.id}')">🗑️</button>
+            `;
+            container.appendChild(div);
+          });
+        });
+    }
+
+    function deleteNote(id) {
+      db.collection("users").doc(currentUser.uid).collection("notes").doc(id)
+        .delete().then(() => loadNotes());
+    }
+
+    function formatDate(date) {
+      return new Date(date.seconds * 1000).toLocaleString('es-ES');
+    }
+
+    function logout() {
+      auth.signOut().then(() => window.location.href = 'login.html');
+    }
+  </script>
+</body>
+</html>
