@@ -1,62 +1,218 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>proorganizer230 — Login</title>
-  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="/css/styles.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>proorganizer230 | Iniciar Sesión</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    /* Reutilizamos el sistema de diseño */
+    :root {
+      --primary: #165DFF;
+      --neutral-light: #F7F9FC;
+      --neutral-gray: #E5E9F2;
+      --neutral-dark: #1D2129;
+      --neutral-text: #4E5969;
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, sans-serif;
+    }
+
+    body {
+      background-color: var(--neutral-light);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .login-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 900px;
+      width: 100%;
+      background-color: white;
+      border-radius: 20px;
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    /* Sección izquierda (decorativa) */
+    .login-hero {
+      background: linear-gradient(135deg, var(--primary), #0E42CC);
+      color: white;
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 2rem;
+    }
+
+    .hero-icon {
+      font-size: 5rem;
+    }
+
+    .hero-title {
+      font-size: 1.8rem;
+      font-weight: 600;
+    }
+
+    .hero-desc {
+      opacity: 0.9;
+      line-height: 1.5;
+    }
+
+    /* Sección derecha (formulario) */
+    .login-form {
+      padding: 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .form-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: var(--neutral-dark);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group label {
+      color: var(--neutral-text);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .form-input {
+      padding: 1rem;
+      border: 1px solid var(--neutral-gray);
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+    }
+
+    .form-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .form-btn:hover {
+      background-color: #0E42CC;
+    }
+
+    .form-link {
+      text-align: center;
+      color: var(--neutral-text);
+      font-size: 0.9rem;
+    }
+
+    .form-link a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .form-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsivo (móviles) */
+    @media (max-width: 768px) {
+      .login-container {
+        grid-template-columns: 1fr;
+      }
+
+      .login-hero {
+        display: none;
+      }
+    }
+  </style>
 </head>
 <body>
-  <main class="container d-flex align-items-center justify-content-center" style="min-height:100vh;">
-    <div class="card p-4" style="width:100%;max-width:920px;border-radius:12px;">
-      <div class="row g-0">
-        <div class="col-md-6 p-4">
-          <h3>Iniciar sesión</h3>
-          <form id="form-login">
-            <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input class="form-control" name="email" type="email" required />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Contraseña</label>
-              <input class="form-control" name="password" type="password" required />
-            </div>
-            <button class="btn btn-primary">Iniciar sesión</button>
-          </form>
-          <hr />
-          <h5>¿Olvidaste tu contraseña?</h5>
-          <form id="form-reset" class="mb-3">
-            <div class="mb-3">
-              <input class="form-control" name="email" type="email" placeholder="Email para recuperar" required />
-            </div>
-            <button class="btn btn-outline-secondary">Enviar email</button>
-          </form>
-        </div>
-        <div class="col-md-6 bg-light p-4">
-          <h3>Crear cuenta</h3>
-          <form id="form-signup">
-            <div class="mb-3">
-              <label class="form-label">Nombre</label>
-              <input class="form-control" name="name" type="text" />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input class="form-control" name="email" type="email" required />
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Contraseña</label>
-              <input class="form-control" name="password" type="password" required />
-            </div>
-            <button class="btn btn-success">Crear cuenta</button>
-          </form>
-        </div>
+  <div class="login-container">
+    <!-- Sección decorativa -->
+    <div class="login-hero">
+      <div class="hero-icon">
+        <i class="fa-solid fa-calendar-check"></i>
       </div>
+      <h2 class="hero-title">Organiza tu vida con proorganizer230</h2>
+      <p class="hero-desc">Maneja tareas, eventos, gastos y más — todo en un solo lugar.</p>
     </div>
-  </main>
-  <script type="module" src="/firebase-config.js"></script>
-  <script type="module" src="/js/auth.js"></script>
-  <script type="module" src="/js/main.js"></script>
+
+    <!-- Formulario de login -->
+    <form class="login-form" onsubmit="event.preventDefault(); login()">
+      <h2 class="form-title">Iniciar Sesión</h2>
+
+      <div class="form-group">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" class="form-input" placeholder="tu@email.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" class="form-input" placeholder="Tu contraseña" required>
+      </div>
+
+      <button type="submit" class="form-btn">Ingresar</button>
+
+      <div class="form-link">
+        ¿No tienes cuenta? <a href="signup.html">Regístrate aquí</a>
+        <br>
+        ¿Olvidaste tu contraseña? <a href="reset-password.html">Recupérala</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Iniciar sesión
+    function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(() => window.location.href = "dashboard.html")
+        .catch(err => {
+          let msg = "Error al iniciar sesión: ";
+          if (err.code === "auth/user-not-found") msg += "Usuario no existe";
+          else if (err.code === "auth/wrong-password") msg += "Contraseña incorrecta";
+          else msg += err.message;
+          alert(msg);
+        });
+    }
+
+    // Redirigir si ya está logueado
+    auth.onAuthStateChanged(user => {
+      if (user) window.location.href = "dashboard.html";
+    });
+  </script>
 </body>
 </html>
