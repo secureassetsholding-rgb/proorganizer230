@@ -7,7 +7,7 @@ import { getFirestore } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase
 
 // Tu configuración de Firebase (pon tu API KEY real)
 const firebaseConfig = {
-  apiKey: "zaSyAcr56qpwswCKNSQV-otQYy2xD-ADbCGyc",
+  apiKey: "AIzaSyAcr56qpwswCKNSQV-otQYy2xD-ADbCGyc",
   authDomain: "proorganizer230.firebaseapp.com",
   projectId: "proorganizer230",
   storageBucket: "proorganizer230.firebasestorage.app",
@@ -29,3 +29,4 @@ window.auth = auth;
 window.db = db;
 
 console.log('✅ Firebase (v9) inicializado — proorganizer230');
+
